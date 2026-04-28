@@ -1,7 +1,6 @@
 use std::ops::DerefMut;
 
 use bevy::{color, math::VectorSpace, prelude::*};
-use bevy_rapier2d::prelude::*;
 
 use crate::level::player::Player;
 
@@ -22,14 +21,10 @@ fn draw_gizmos(mut gizmos: Gizmos) {
     gizmos.arrow(Vec3::ZERO, Vec3::Z, color::palettes::basic::BLUE);
 }
 
-fn respawner(mut query: Query<(&mut Transform, Option<&mut Velocity>), With<Player>>) {
-    for (mut transform, velocity) in query {
+fn respawner(mut query: Query<&mut Transform, With<Player>>) {
+    for mut transform in query {
         if transform.translation.y < -10.0 {
             *transform = Transform::from_translation(Vec3::Y * 0.5);
-
-            if let Some(mut velocity) = velocity {
-                *velocity = Velocity::zero();
-            }
         }
     }
 }

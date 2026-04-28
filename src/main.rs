@@ -20,7 +20,6 @@
 //! 
 
 use bevy::{app::MainScheduleOrder, prelude::*};
-use bevy_rapier2d::prelude::*;
 
 use crate::{input::ProcessGameInput, movement_controllers::ProcessMovementControllers};
 
@@ -36,8 +35,6 @@ fn main() {
 
     app
         .add_plugins(DefaultPlugins)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(1.0))
-        .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins((
             level::manager::Plugin,
             viewport::Plugin,

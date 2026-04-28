@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 
 use crate::level::player;
 
@@ -29,7 +28,6 @@ fn startup(
     commands.spawn((
         Mesh3d(meshes.add(Cuboid::new(10.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::WHITE)),
-        Transform::from_xyz(0.0, -1.0, 0.0),
-        Collider::cuboid(10.0 / 2.0, 1.0 / 2.0)
+        Transform::from_xyz(0.0, -1.0, 0.0)
     ));
 }
