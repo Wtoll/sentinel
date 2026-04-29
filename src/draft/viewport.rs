@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 
-pub struct Plugin;
+pub struct ViewportPlugin;
 
-impl bevy::app::Plugin for Plugin {
+impl Plugin for ViewportPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Startup, startup);

@@ -1,30 +1,29 @@
 use bevy::prelude::*;
 
-use crate::level::player;
+use crate::core::{MenuState, player::spawn_player};
 
-pub struct Plugin;
+pub struct LevelManagerPlugin;
 
-impl bevy::app::Plugin for Plugin {
+impl Plugin for LevelManagerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, startup);
+        app.add_systems(OnEnter(MenuState::InGame), spawn_level);
     }
 }
 
-fn startup(
+fn spawn_level(
     mut commands: Commands, 
     mut meshes: ResMut<Assets<Mesh>>, 
     mut materials: ResMut<Assets<StandardMaterial>>
 ) {
 
 
-    player::spawn_player(
+
+    spawn_player(
         &mut commands,
         meshes.add(Cuboid::new(1.0, 1.0, 1.0)),
         materials.add(Color::hsl(1.0, 1.0, 0.5))
     );
 
-
-    
     commands.spawn((
         Mesh3d(meshes.add(Cuboid::new(10.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::WHITE)),
