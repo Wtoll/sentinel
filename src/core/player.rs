@@ -4,7 +4,7 @@ use std::marker::PhantomData;
 
 use bevy::prelude::*;
 
-use crate::core::physics::MovementController;
+use crate::core::{input::InputSource, physics::MovementController};
 
 /// A player entity
 #[derive(Component)]

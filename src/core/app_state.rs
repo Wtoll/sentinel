@@ -12,7 +12,7 @@ impl Plugin for AppStatePlugin {
             .init_state::<AppState>()
             .init_state::<PauseState>()
             .configure_sets(Update, (
-                scheduling::MenuSystemSet
+                scheduling::MainMenuSystemSet
                     .run_if(in_state(AppState::MainMenu)),
                 scheduling::GameSystemSet
                     .run_if(in_state(AppState::InGame)),
@@ -52,7 +52,7 @@ pub mod scheduling {
 
     /// A system set that will only run on the main menu
     #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-    pub struct MenuSystemSet;
+    pub struct MainMenuSystemSet;
 
     /// A system set that will only run in game
     #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]

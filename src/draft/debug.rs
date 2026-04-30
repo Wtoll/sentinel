@@ -2,17 +2,31 @@
 
 use bevy::{color, prelude::*};
 
-use crate::core::app_state::scheduling::GameSystemSet;
+use leafwing_input_manager::prelude::*;
+
+use crate::core::{AppState, app_state::scheduling::{GameSystemSet, MainMenuSystemSet}, input::{GameAction, Keyboard}};
 
 /// Plugin for enabling the game's debugging tools
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (
-            draw_gizmos,
-            debug_system)
-                .in_set(GameSystemSet));
+        app
+            .add_systems(Update, transition_into_game.in_set(MainMenuSystemSet))
+            .add_systems(Update, (
+                draw_gizmos,
+                debug_system)
+                    .in_set(GameSystemSet));
+    }
+}
+
+/// System for moving into the game from the main menu
+fn transition_into_game(
+    mut next_state: ResMut<NextState<AppState>>,
+    keyboard: Single<&ActionState<GameAction>, With<Keyboard>>
+) {
+    if keyboard.just_pressed(&GameAction::PrimaryInteract) {
+        next_state.set(AppState::InGame);
     }
 }
 
