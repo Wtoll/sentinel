@@ -1,8 +1,12 @@
 use bevy::prelude::*;
 
+/// An interface for providing an entity a degree of control over its movement
+/// within the game world
 #[derive(Component, Default)]
 pub struct MovementController {
-    pub terminal_velocity: f32,
+    /// The maximum velocity the entity is capable of generating moving at
+    pub maximum_velocity: f32,
+    /// The desired movement magnitude and direction along the lateral axis
     pub lateral_bearing: f32,
 }
 
@@ -17,7 +21,7 @@ pub(super) fn update_movement_controllers(
     // Iterate through all of the entities with a movement controller
     for (
         entity,
-        mut controller,
+        controller,
         transform
     ) in query.iter_mut() {
 

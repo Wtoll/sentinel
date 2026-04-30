@@ -1,4 +1,4 @@
-//! The core game plugins 
+//! The core plugins 
 
 use bevy::app::{PluginGroup, PluginGroupBuilder};
 
@@ -12,8 +12,9 @@ pub mod player;
 pub use player::Player;
 
 pub mod app_state;
-pub use app_state::{AppStatePlugin, MenuState, PauseState};
+pub use app_state::{AppStatePlugin, AppState, PauseState};
 
+/// A plugin group for enabling the core plugins
 pub struct CorePlugins;
 
 impl PluginGroup for CorePlugins {

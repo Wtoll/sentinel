@@ -1,5 +1,8 @@
+//! Application viewport
+
 use bevy::prelude::*;
 
+/// Plugin for enabling the game's viewport
 pub struct ViewportPlugin;
 
 impl Plugin for ViewportPlugin {

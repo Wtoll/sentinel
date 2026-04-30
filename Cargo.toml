@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 bevy = { version = "0.18.1", features = ["dynamic_linking", "debug"] }
+leafwing-input-manager = "0.20.0"
 
 [profile.dev]
 opt-level = 1

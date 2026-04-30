@@ -1,4 +1,4 @@
-//! Drafts of core game plugins
+//! Drafts of core plugins
 
 use bevy::app::{PluginGroup, PluginGroupBuilder};
 
@@ -19,6 +19,7 @@ pub mod assets;
 pub mod editor;
 pub use editor::EditorPlugin;
 
+/// A plugin group for enabling the draft plugins
 pub struct DraftPlugins;
 
 impl PluginGroup for DraftPlugins {

@@ -1,7 +1,10 @@
+//! Debugging tools for the application
+
 use bevy::{color, prelude::*};
 
 use crate::core::app_state::scheduling::GameSystemSet;
 
+/// Plugin for enabling the game's debugging tools
 pub struct DebugPlugin;
 
 impl Plugin for DebugPlugin {

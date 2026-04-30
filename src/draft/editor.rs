@@ -1,8 +1,9 @@
-//! Plugin for enabling the game's built-in level editor
+//! The game's built-in level editor
 //! 
 
 use bevy::prelude::*;
 
+/// Plugin for enabling the game's built-in level editor
 pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {

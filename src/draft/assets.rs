@@ -1,7 +1,8 @@
-use std::{cell::OnceCell, collections::HashMap, marker::PhantomData};
+//! Game assets
 
 use bevy::prelude::*;
 
+/// Plugin for enabling the management of game assets
 pub struct AssetsPlugin;
 
 impl Plugin for AssetsPlugin {
@@ -9,13 +10,6 @@ impl Plugin for AssetsPlugin {
         app.add_systems(Startup, initialize_assets);
     }
 }
-
-
-
-
-
-
-
 
 fn initialize_assets(
     mut meshes: ResMut<Assets<Mesh>>, 

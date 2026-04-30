@@ -1,17 +1,21 @@
+//! Global application state system
+//! 
+
 use bevy::prelude::*;
 
+/// Plugin for enabling the game's global application state system
 pub struct AppStatePlugin;
 
 impl Plugin for AppStatePlugin {
     fn build(&self, app: &mut App) {
         app
-            .init_state::<MenuState>()
+            .init_state::<AppState>()
             .init_state::<PauseState>()
             .configure_sets(Update, (
                 scheduling::MenuSystemSet
-                    .run_if(in_state(MenuState::MainMenu)),
+                    .run_if(in_state(AppState::MainMenu)),
                 scheduling::GameSystemSet
-                    .run_if(in_state(MenuState::InGame)),
+                    .run_if(in_state(AppState::InGame)),
                 scheduling::RunningSystemSet
                     .in_set(scheduling::GameSystemSet)
                     .run_if(in_state(PauseState::Running)),
@@ -22,22 +26,27 @@ impl Plugin for AppStatePlugin {
     }
 }
 
-/// Enum for the main menu state
+/// Whether the application is on the main menu or in game
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum MenuState {
+pub enum AppState {
+    /// The application is on the main menu
     #[default]
     MainMenu,
+    /// The application is in the game
     InGame
 }
 
-/// Enum for the pause state
+/// Whether the game is paused or not
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub enum PauseState {
+    /// The game is running
     #[default]
     Running,
+    /// The game is paused
     Paused
 }
 
+/// Scheduling in reference to the global application state
 pub mod scheduling {
     use bevy::prelude::*;
 

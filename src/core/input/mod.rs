@@ -1,129 +1,79 @@
+//! Input Handling
+//! 
+
 use bevy::{input::gamepad::{GamepadConnection, GamepadConnectionEvent}, prelude::*};
 
-use crate::core::{MenuState, Player, app_state::scheduling::GameSystemSet, input::scheduling::InputSystemSet};
+use leafwing_input_manager::prelude::*;
 
+use crate::core::{AppState, Player, input::scheduling::InputSystemSet};
+
+/// Plugin to enable the game's input processing systems
 pub struct GameInputPlugin;
 
 impl Plugin for GameInputPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(Update, (
+                handle_keyboard_input,
                 configure_new_gamepads,
-                assign_new_gamepads,
-                process_gamepads)
-                    .in_set(GameSystemSet)
-                    .in_set(InputSystemSet))
-            .add_systems(Update, 
-                handle_keyboard_input
-                    .in_set(InputSystemSet))
-            .configure_sets(Update, scheduling::AfterInputSystemSet
-                .after(InputSystemSet));
+                attach_input_maps,
+                attach_gamepads_to_players,
+                attach_players_to_gamepads)
+                    .in_set(InputSystemSet));
     }
 }
 
+/// System scheduling in reference to the input processing system
 pub mod scheduling {
     use bevy::prelude::*;
 
+    /// A system set for handling input processing
     #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
     pub struct InputSystemSet;
-
-    #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-    pub struct AfterInputSystemSet;
 }
 
+/// An action that may be performed by a player in the world of the game
+#[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
+pub enum GameAction {
+    /// Lateral movement
+    #[actionlike(Axis)]
+    MoveLateral,
+    /// Jump action
+    Jump,
+}
 
+impl GameAction {
+    fn default_input_map() -> InputMap<Self> {
+        InputMap::default()
+            .with_axis(Self::MoveLateral, GamepadAxis::LeftStickX)
+            .with(Self::Jump, GamepadButton::South)
+    }
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/// Component for storing a source of user input data
+/// Component for a dependant of user input data
 #[derive(Component)]
+#[relationship(relationship_target = InputDependants)]
 pub struct InputSource(pub Entity);
 
-/// Component for storing user inputs after mapping
-#[derive(Component, Default, Clone)]
-pub struct GameInput {
-    pub lateral_bearing: f32
-}
-
-impl From<&Gamepad> for GameInput {
-    fn from(gamepad: &Gamepad) -> Self {
-        let mut gamepad_bearing = gamepad.left_stick().x;
-
-        // Manually establish a dead zone
-        // See bevy Issue #24009
-        if gamepad_bearing.abs() < 0.05 {
-            gamepad_bearing = 0.0;
-        }
-
-        Self {
-            lateral_bearing: gamepad_bearing
-        }
-    }
-}
-
-impl GameInput {
-    fn write_to(&self, target: &mut Mut<'_, GameInput>) {
-        **target = self.clone();
-    }
-}
+/// Component for a source of user input data
+#[derive(Component)]
+#[relationship_target(relationship = InputSource)]
+pub struct InputDependants(Vec<Entity>);
 
 /// System for handling keyboard input
 fn handle_keyboard_input(
-    menu_state: Res<State<MenuState>>,
-    mut next_state: ResMut<NextState<MenuState>>,
+    menu_state: Res<State<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
     key_codes: Res<ButtonInput<KeyCode>>
 ) {
-    if (key_codes.just_pressed(KeyCode::KeyE)) {
-        if let MenuState::MainMenu = menu_state.get() {
-            next_state.set(MenuState::InGame);
+    if key_codes.just_pressed(KeyCode::KeyE) {
+        if let AppState::MainMenu = menu_state.get() {
+            next_state.set(AppState::InGame);
         }
     }
 }
 
-/// System for configuring gamepads that reconnect
+/// System for reconfiguring default gamepad settings on connection
 fn configure_new_gamepads(
     mut commands: Commands,
     mut connection_events: MessageReader<GamepadConnectionEvent>,
@@ -148,52 +98,71 @@ fn configure_new_gamepads(
     }
 }
 
-/// System for assigning new gamepads to players
-fn assign_new_gamepads(
+/// System for attaching newly connected gamepads to players
+fn attach_gamepads_to_players(
     mut commands: Commands,
     mut connection_events: MessageReader<GamepadConnectionEvent>,
-    players: Query<(Entity, Option<&InputSource>), With<Player>>
+    input_dependants: Query<&InputDependants>,
+    unattached_players: Query<Entity, (With<Player>, Without<InputSource>)>
 ) {
     for event in connection_events.read() {
         let GamepadConnectionEvent { gamepad, connection } = event;
         match connection {
-            GamepadConnection::Connected { name: _, vendor_id: _, product_id: _ } => {
+            GamepadConnection::Connected { name, vendor_id: _, product_id: _ } => {
+                debug!("Gamepad \"{}\" connected as entity {}", name, gamepad);
+
                 // If no players are reading from this gamepad...
-                if players.iter().all(|(_, source)| {
-                    source.is_none_or(|source| {
-                        source.0 != *gamepad
-                    })
-                }) {
-                    // ...and there is a player without a source...
-                    if let Some((player, _)) = players.iter()
-                        .filter(|(_, source)| {
-                            source.is_none()
-                        })
-                        .next() {
-                            // ...give that player this gamepad as a source
-                            commands.entity(player).insert(InputSource(*gamepad));
-                        }
+                if let Ok(dependants) = input_dependants.get(*gamepad) && !dependants.is_empty() {
+                    continue;
+                }
+
+                // ...and there is a player without a source...
+                if let Some(player) = unattached_players.iter().next() {
+                    // ...give that player this gamepad as a source
+                    commands.entity(player).insert(InputSource(*gamepad));
+                    debug!("Associated gamepad entity {} with player entity {}", gamepad, player);
                 }
             },
             GamepadConnection::Disconnected => {
-                commands.entity(*gamepad).remove::<GameInput>();
+                debug!("Gamepad disconnected from entity {}", gamepad);
             },
         }
     }
 }
 
-/// System for processing gamepad input and remapping it
-fn process_gamepads(
+/// System to attach `InputMap`s to `Gamepad`s
+fn attach_input_maps(
     mut commands: Commands,
-    gamepads: Query<(Entity, &Gamepad, Option<&mut GameInput>)>
+    gamepads: Query<Entity, (With<Gamepad>, Without<InputMap<GameAction>>)>
 ) {
-    for (entity, gamepad, game_input) in gamepads {
-        let new_game_input = GameInput::from(gamepad);
+    for gamepad in gamepads {
+        commands
+            .entity(gamepad)
+            .insert(GameAction::default_input_map()
+                .with_gamepad(gamepad));
+        debug!("Bound default input map to gamepad entity {}", gamepad);
+    }
+}
 
-        if let Some(mut game_input) = game_input {
-            new_game_input.write_to(&mut game_input);
-        } else {
-            commands.entity(entity).insert(new_game_input);
-        }
+/// System for attaching newly spawned players to gamepads
+fn attach_players_to_gamepads(
+    mut commands: Commands,
+    gamepads: Query<(Entity, Option<&InputDependants>), With<Gamepad>>,
+    unattached_players: Query<Entity, (With<Player>, Without<InputSource>)>
+) {
+    // For all the players without a gamepad...
+    for player in unattached_players {
+        // ...try to find a gamepad with no dependants...
+        if let Some(gamepad) = gamepads
+            .iter()
+            .filter_map(|(gamepad, dependants)| {
+                dependants
+                    .is_none_or(|v| v.is_empty())
+                    .then_some(gamepad)
+            }).next() {
+                // ...and attach it to that player
+                commands.entity(player).insert(InputSource(gamepad));
+                debug!("Associated player entity {} with gamepad entity {}", player, gamepad);
+            }
     }
 }

@@ -1,12 +1,15 @@
+//! Level manager
+
 use bevy::prelude::*;
 
-use crate::core::{MenuState, player::spawn_player};
+use crate::core::{AppState, player::spawn_player};
 
+/// Plugin for enabling the level manager
 pub struct LevelManagerPlugin;
 
 impl Plugin for LevelManagerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(MenuState::InGame), spawn_level);
+        app.add_systems(OnEnter(AppState::InGame), spawn_level);
     }
 }
 
