@@ -39,6 +39,8 @@ pub struct Keyboard;
 /// An action that may be performed by a player in the world of the game
 #[derive(Actionlike, PartialEq, Eq, Hash, Clone, Copy, Debug, Reflect)]
 pub enum GameAction {
+    /// Pause the game
+    Pause,
     /// Primary interact
     PrimaryInteract,
     /// Lateral movement
@@ -51,6 +53,7 @@ pub enum GameAction {
 impl GameAction {
     fn default_gamepad_input_map() -> InputMap<Self> {
         InputMap::default()
+            .with(Self::Pause, GamepadButton::Select)
             .with(Self::PrimaryInteract, GamepadButton::East)
             .with_axis(Self::MoveLateral, GamepadAxis::LeftStickX)
             .with(Self::Jump, GamepadButton::South)
@@ -58,6 +61,7 @@ impl GameAction {
 
     fn default_keyboard_input_map() -> InputMap<Self> {
         InputMap::default()
+            .with(Self::Pause, KeyCode::Escape)
             .with(Self::PrimaryInteract, KeyCode::KeyE)
             .with_axis(Self::MoveLateral, VirtualAxis::new(KeyCode::KeyA, KeyCode::KeyD))
             .with(Self::Jump, KeyCode::KeyW)
@@ -79,6 +83,7 @@ fn create_keyboard_entity(
     mut commands: Commands
 ) {
     commands.spawn((
+        Name::new("Keyboard"),
         Keyboard,
         GameAction::default_keyboard_input_map()
     ));

@@ -4,15 +4,19 @@ use bevy::prelude::*;
 
 use leafwing_input_manager::prelude::*;
 
-use crate::{core::{Player, input::{GameAction, InputSource}, physics::MovementController}, draft::behavior::scheduling::BrainSystemSet};
+use crate::{core::{GameState, Player, input::{GameAction, InputSource}, physics::MovementController}, draft::behavior::scheduling::BrainSystemSet};
 
 /// A plugin for enabling the game's behavior capabilities
 pub struct BehaviorPlugin;
 
 impl Plugin for BehaviorPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, 
-            update_player_brains.in_set(BrainSystemSet));
+        app
+            .add_systems(Update, update_player_brains
+                .in_set(BrainSystemSet))
+            .configure_sets(Update, BrainSystemSet
+                .run_if(in_state(GameState::Running)
+                    .or(in_state(GameState::InGameMenu))));
     }
 }
 

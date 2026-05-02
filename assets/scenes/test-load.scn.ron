@@ -1,0 +1,10 @@
+(
+  resources: {},
+  entities: {
+    4294967270: (
+      components: {
+        "bevy_ecs::name::Name": "Test",
+      },
+    ),
+  },
+)

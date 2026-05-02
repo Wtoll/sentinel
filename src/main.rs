@@ -1,7 +1,14 @@
 //! # Sentinel
 //! 
 //! ## Roadmap
-//! 
+//! - [ ] Minimap
+//! - [ ] Level serialization and deserialization
+//! - [ ] Level editor
+//! - [ ] Main Menu
+//! - [ ] Options Menu
+//! - [ ] Control Mappings
+//! - [ ] Physics
+//! - [ ] 
 //! 
 //! 
 
