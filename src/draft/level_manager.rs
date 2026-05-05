@@ -33,13 +33,15 @@ fn queue_scene_loader(
         DynamicSceneRoot(asset_server.load("scenes/test-load.scn.ron"))
     ));
 
-    commands.queue(PlayerManager::spawn_player());
+    commands.queue(PlayerManager::spawn_player_with((
+        Transform::from_xyz(0.0, -4.0, 0.0)
+    )));
 
     commands.spawn((
         DespawnOnExit(AppState::InGame),
         Mesh3d(meshes.add(Cuboid::new(10.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::WHITE)),
-        Transform::from_xyz(0.0, -1.0, 0.0)
+        Transform::from_xyz(0.0, -5.0, 0.0)
     ));
 }
 

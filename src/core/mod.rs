@@ -2,6 +2,8 @@
 
 use bevy::app::{PluginGroup, PluginGroupBuilder};
 
+pub mod util;
+
 pub mod physics;
 pub use physics::PhysicsPlugin;
 

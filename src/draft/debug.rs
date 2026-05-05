@@ -65,11 +65,11 @@ fn debug_system(
     mut commands: Commands,
     entities: Query<Entity>
 ) {
-    info!("About to log all of the components for all entities\n");
+    //info!("About to log all of the components for all entities\n");
 
     for entity in entities {
         // log_components will error if it's run for a stale entity id, so silence any errors that happen
-        commands.queue_silenced(entity_command::log_components().with_entity(entity));
+        //commands.queue_silenced(entity_command::log_components().with_entity(entity));
     }
 }
 

@@ -22,7 +22,6 @@ use sentinel::{
 };
 
 fn main() {
-
     // SAFETY: The application is not yet multithreaded
     unsafe {
         env::set_var("RUST_LOG", "info,sentinel=debug");

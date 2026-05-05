@@ -95,11 +95,15 @@ fn configure_new_gamepads(
     mut connection_events: MessageReader<GamepadConnectionEvent>,
     mut gamepad_settings: Query<&mut GamepadSettings>,
 ) {
-    // Disable broken deadzones
-    // See bevy Issue #24009
-    for event in connection_events.read() {
-        if event.connected() {
-            if let Ok(mut settings) = gamepad_settings.get_mut(event.gamepad) {
+    
+    for GamepadConnectionEvent { gamepad, connection } in connection_events.read() {
+        if let GamepadConnection::Connected { name, vendor_id, product_id} = connection {
+            // Add device name to entity
+            commands.entity(*gamepad).insert(Name::new(name.clone()));
+
+            // Disable broken deadzones
+            // See bevy Issue #24009
+            if let Ok(mut settings) = gamepad_settings.get_mut(*gamepad) {
                 settings.default_axis_settings.set_deadzone_lowerbound(0.0);
                 settings.default_axis_settings.set_deadzone_upperbound(0.0);
             } else {
@@ -108,7 +112,7 @@ fn configure_new_gamepads(
                 settings.default_axis_settings.set_deadzone_lowerbound(0.0);
                 settings.default_axis_settings.set_deadzone_upperbound(0.0);
 
-                commands.entity(event.gamepad).insert(settings);
+                commands.entity(*gamepad).insert(settings);
             }
         }
     }
