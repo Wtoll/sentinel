@@ -16,6 +16,12 @@ pub use player::Player;
 pub mod state_manager;
 pub use state_manager::{StateManagerPlugin, AppState, GameState};
 
+pub mod level;
+pub use level::Level;
+
+pub mod scene;
+pub use scene::ScenePlugin;
+
 /// A plugin group for enabling the core plugins
 pub struct CorePlugins;
 
@@ -25,5 +31,6 @@ impl PluginGroup for CorePlugins {
             .add(PhysicsPlugin)
             .add(GameInputPlugin)
             .add(StateManagerPlugin)
+            .add(ScenePlugin)
     }
 }

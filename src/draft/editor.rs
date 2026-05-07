@@ -8,7 +8,9 @@ pub struct EditorPlugin;
 
 impl Plugin for EditorPlugin {
     fn build(&self, app: &mut App) {
-        app.init_state::<EditorState>();
+        app
+            .init_state::<EditorState>()
+            .add_systems(Update, editor_keybind);
     }
 }
 
@@ -17,4 +19,18 @@ enum EditorState {
     #[default]
     Game,
     Editor
+}
+
+fn editor_keybind(
+    commands: Commands,
+    mut next_state: ResMut<NextState<EditorState>>,
+    input: Res<ButtonInput<KeyCode>>
+) {
+    if input.any_pressed([KeyCode::ShiftLeft, KeyCode::ShiftRight]) &&
+        input.any_pressed([KeyCode::ControlLeft, KeyCode::ControlRight]) &&
+        input.just_pressed(KeyCode::KeyE) {
+            info!("Enter editor");
+
+            next_state.set(EditorState::Editor);
+        }
 }

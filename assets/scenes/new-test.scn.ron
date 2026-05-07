@@ -1,0 +1,26 @@
+(
+  resources: {},
+  entities: {
+    4294967294: (
+      components: {
+        "bevy_ecs::hierarchy::ChildOf": (4294967295),
+        "bevy_ecs::name::Name": "Object In Room",
+      },
+    ),
+    4294967295: (
+      components: {
+        "bevy_ecs::hierarchy::Children": ([
+          4294967294,
+        ]),
+        "sentinel::core::level::room::Room": (
+          volume: (
+            aabb: (
+              center: (5.0, 1.5, 0.5),
+              half_extents: (5.0, 1.5, 0.5),
+            ),
+          ),
+        ),
+      },
+    ),
+  },
+)

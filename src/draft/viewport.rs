@@ -108,7 +108,7 @@ fn camera_control(
         let projection = transform.forward() * controller.distance;
         let root_projected = transform.translation + projection;
 
-        let angular_transfer_ratio = 0.5;
+        let angular_transfer_ratio = 0.25;
 
         let linear_undamped_frequency = 5.0;
         let linear_damping_ratio = 2.0;

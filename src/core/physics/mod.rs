@@ -33,3 +33,12 @@ pub struct Velocity {
     /// The angular velocity of the body
     pub angular: Vec3
 }
+
+
+
+
+/// A collision box for an entity
+#[derive(Component, Default)]
+pub struct Collider {
+
+}
