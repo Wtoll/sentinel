@@ -18,9 +18,48 @@ impl Plugin for DebugPlugin {
                 .run_if(in_state(AppState::MainMenu)))
             .add_systems(Update, pause_menu_debug_keybinds
                 .run_if(in_state(GameState::Paused)))
-            .add_systems(Update, debug_system);
+            .add_systems(Update, debug_system)
+            .add_systems(Startup, initialize)
+            .add_systems(Update, main_loop);
     }
 }
+
+fn initialize(
+    mut commands: Commands
+) {
+
+    // let one = commands.spawn(Name::new("Test target 1")).id();
+    
+
+    // let test_holder = commands.spawn(ConnectedTo { nodes: vec!(one) }).id();
+
+
+
+}
+
+fn main_loop(
+    mut commands: Commands
+) {
+    
+
+    // if let Ok((e, con)) = query.single() {
+
+    //     info!("Nodes Pre-Insert: {:?}", con.nodes);
+
+    //     if con.nodes.len() < 2 {
+    //         let two = commands.spawn(Name::new("Test target 2")).id();
+
+    //         commands.entity(e).insert(ConnectedTo { nodes: vec!(two) }).id();
+    //     }
+
+    //     info!("Nodes Post-Insert: {:?}", con.nodes);
+    // }
+
+    
+}
+
+
+
 
 /// System that automatically transitions out of the game entering state
 fn transition_game_entering(
