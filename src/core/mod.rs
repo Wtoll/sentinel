@@ -23,7 +23,6 @@ pub mod scene;
 pub use scene::ScenePlugin;
 
 pub mod graph;
-use graph::GraphTestPlugin;
 
 /// A plugin group for enabling the core plugins
 pub struct CorePlugins;
@@ -35,6 +34,5 @@ impl PluginGroup for CorePlugins {
             .add(GameInputPlugin)
             .add(StateManagerPlugin)
             .add(ScenePlugin)
-            .add(GraphTestPlugin)
     }
 }
