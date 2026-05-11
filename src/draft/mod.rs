@@ -19,6 +19,9 @@ pub mod assets;
 pub mod editor;
 pub use editor::EditorPlugin;
 
+pub mod progression;
+pub use progression::ProgressionPlugin;
+
 /// A plugin group for enabling the draft plugins
 pub struct DraftPlugins;
 
@@ -30,5 +33,6 @@ impl PluginGroup for DraftPlugins {
             .add(BehaviorPlugin)
             .add(ViewportPlugin)
             .add(EditorPlugin)
+            .add(ProgressionPlugin)
     }
 }

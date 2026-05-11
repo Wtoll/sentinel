@@ -280,9 +280,9 @@ pub mod commands {
         /// 
         /// ```
         /// # use bevy::prelude::*;
-        /// # use super::util::edge_input
+        /// # use sentinel::core::graph::prelude::*;
         /// #
-        /// # let world = World::new();
+        /// # let mut world = World::new();
         /// # let mut commands = world.commands();
         /// #
         /// let node_a = commands.spawn(Name::new("Node A")).id();
