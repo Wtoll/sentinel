@@ -20,7 +20,8 @@ pub mod prelude {
         EdgeOutput,
         Node,
         NodeInputs,
-        NodeOutputs
+        NodeOutputs,
+        GraphNode
     };
 
     pub use super::util::{
@@ -41,7 +42,7 @@ mod core {
 
     use crate::core::graph::util::graph;
 
-use super::util::infer_graph;
+    use super::util::infer_graph;
 
     use super::prelude::*;
 
@@ -148,6 +149,51 @@ use super::util::infer_graph;
     #[require(NodeInputs, NodeOutputs)]
     pub struct Node;
 
+    impl Node {
+        /// Prints debug information for the node to the log
+        pub fn debug() -> impl EntityCommand {
+            move |mut entity: EntityWorldMut| {
+
+                let parent_graph = parent_graph(entity.world(), entity.id()).unwrap();
+
+                let node_inputs = node_inputs(entity.world(), entity.id())
+                    .map(|inputs| {
+                        inputs.iter().filter_map(|input| {
+                            edge_input(entity.world(), *input)
+                        }).collect::<Vec<Entity>>()
+                    });
+
+                let node_outputs = node_outputs(entity.world(), entity.id())
+                    .map(|outputs| {
+                        outputs.iter().filter_map(|output| {
+                            edge_output(entity.world(), *output)
+                        }).collect::<Vec<Entity>>()
+                    });
+
+                info!("Graph {}", parent_graph);
+                info!("┬");
+
+                if let Some(node_inputs) = node_inputs {
+                    for input in node_inputs {
+                        info!("├ Node {}", input);
+                    }
+                }
+
+                info!("└ Node {}", entity.id());
+
+                if let Some(node_outputs) = node_outputs {
+                    for i in 0..node_outputs.len() {
+                        if i != node_outputs.len() - 1 {
+                            info!("  ├ Node {}", node_outputs[i]);
+                        } else {
+                            info!("  └ Node {}", node_outputs[i]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /// The input [`Edge`]s of a [`Node`].
     #[derive(Component, Default)]
     #[relationship_target(relationship = EdgeOutput)]
@@ -157,6 +203,9 @@ use super::util::infer_graph;
     #[derive(Component, Default)]
     #[relationship_target(relationship = EdgeInput)]
     pub struct NodeOutputs(Vec<Entity>);
+
+    /// Type alias to disambiguate [`Node`] when also importing [`bevy::prelude`].
+    pub type GraphNode = Node;
 }
 
 pub use core::{
@@ -167,7 +216,8 @@ pub use core::{
     EdgeOutput,
     Node,
     NodeInputs,
-    NodeOutputs
+    NodeOutputs,
+    GraphNode
 };
 
 /// General utilities for interacting with [`Graph`]s, [`Node`]s, and
@@ -278,7 +328,7 @@ pub mod commands {
         /// 
         /// ## Example
         /// 
-        /// ```
+        /// ```rust
         /// # use bevy::prelude::*;
         /// # use sentinel::core::graph::prelude::*;
         /// #
@@ -288,6 +338,8 @@ pub mod commands {
         /// let node_a = commands.spawn(Name::new("Node A")).id();
         ///
         /// let (node_b, edge_a_b) = commands.spawn_connected_from(node_a);
+        /// 
+        /// commands.entity(node_b).insert(Name::new("Node B"));
         ///
         /// assert_eq!(
         ///     edge_input(&world, edge_a_b)
@@ -295,6 +347,14 @@ pub mod commands {
         ///         .unwrap()
         ///         .as_str(),
         ///     "Node A"
+        /// );
+        /// 
+        /// assert_eq!(
+        ///     edge_output(&world, edge_a_b)
+        ///         .and_then(|output| world.get::<Name>(output))
+        ///         .unwrap()
+        ///         .as_str(),
+        ///     "Node B"
         /// );
         /// ```
         /// 
@@ -337,7 +397,112 @@ pub mod commands {
         }
     }
 
-    
+    #[cfg(test)]
+    mod test {
+        
+        use crate::test::util::SimpleTest;
+        use crate::core::graph::prelude::*;
+        use bevy::prelude::*;
+        use crate::simple_test;
+
+        #[test]
+        fn test_spawn_connected_from() {
+
+            struct Implementation;
+
+            impl SimpleTest for Implementation {
+                const CYCLES: usize = 30;
+
+                fn startup(world: &mut World) {
+                    let mut commands = world.commands();
+
+                    let node_a = commands.spawn(Name::new("Node A")).id();
+
+                    let (node_b, edge_a_b) = commands.spawn_connected_from(node_a);
+
+                    commands.entity(node_b).insert(Name::new("Node B"));
+                }
+
+                fn update(world: &mut World) {
+                    if let Ok((edge_a_b, _)) = world.query::<(Entity, &EdgeOutput)>().single(world) {
+
+                        assert_eq!(
+                            edge_input(&world, edge_a_b)
+                                .and_then(|input| world.get::<Name>(input))
+                                .unwrap()
+                                .as_str(),
+                            "Node A"
+                        );
+
+                        assert_eq!(
+                            edge_output(&world, edge_a_b)
+                                .and_then(|output| world.get::<Name>(output))
+                                .unwrap()
+                                .as_str(),
+                            "Node B"
+                        );
+                    }
+                }
+            }
+
+            simple_test!(Implementation);
+        }
+
+        #[test]
+        fn test_spawn_cyclic_with() {
+
+            #[derive(Component)]
+            struct TargetEdge;
+
+            struct Implementation;
+
+            impl SimpleTest for Implementation {
+                const CYCLES: usize = 30;
+
+                fn startup(world: &mut World) {
+                    let mut commands = world.commands();
+
+                    let node_a = commands.spawn(Name::new("Node A")).id();
+
+                    let (node_b, edge_a_b, edge_b_a) = commands.spawn_cyclic_with(node_a);
+
+                    commands.entity(edge_a_b).insert(TargetEdge);
+
+                    commands.entity(node_b).insert(Name::new("Node B"));
+                }
+
+                fn update(world: &mut World) {
+                    if let Ok((edge_a_b, _)) = world.query::<(Entity, &TargetEdge)>().single(world) {
+
+                        assert_eq!(
+                            edge_input(&world, edge_a_b)
+                                .and_then(|input| world.get::<Name>(input))
+                                .unwrap()
+                                .as_str(),
+                            "Node A"
+                        );
+
+                        assert_eq!(
+                            edge_output(&world, edge_a_b)
+                                .and_then(|output| world.get::<Name>(output))
+                                .unwrap()
+                                .as_str(),
+                            "Node B"
+                        );
+                    }
+                }
+            }
+
+            simple_test!(Implementation);
+        }
+
+
+
+
+
+
+
+    }
 
 
     
@@ -346,3 +511,106 @@ pub mod commands {
     
 }
 
+
+
+
+
+
+
+
+
+
+
+
+// #[cfg(test)]
+// mod test {
+//     use std::time::Duration;
+
+//     use bevy::app::ScheduleRunnerPlugin;
+
+//     use crate::simple_test;
+
+
+//     #[test]
+//     fn test_commands() {
+
+
+
+//         use bevy::prelude::*;
+//         use crate::core::graph::prelude::*;
+
+
+//         struct TestPlugin;
+
+//         impl Plugin for TestPlugin {
+//             fn build(&self, app: &mut bevy::app::App) {
+//                 app
+//                     .add_plugins(MinimalPlugins
+//                         .set(ScheduleRunnerPlugin::run_loop(Duration::from_secs_f64(1.0 / 60.0))))
+//                     .add_systems(Startup, startup)
+//                     .add_systems(Update, update)
+//                     .add_systems(PostUpdate, quit_after);
+//             }
+//         }
+
+
+
+
+
+
+
+//         App::new().add_plugins(TestPlugin).run();
+
+
+
+        
+
+//         fn startup(
+//             mut commands: Commands
+//         ) {
+//             let node_a = commands.spawn(Name::new("Node A")).id();
+
+//             let (node_b, edge_a_b) = commands.spawn_connected_from(node_a);
+
+//             commands.entity(node_b).insert(Name::new("Node B"));
+//         }
+
+//         fn update(
+//             world: &mut World
+//         ) {
+
+//             println!("Update Loop");
+
+//             if let Ok((edge_a_b, _)) = world.query::<(Entity, &EdgeOutput)>().single(world) {
+
+//                 assert_eq!(
+//                     edge_input(&world, edge_a_b)
+//                         .and_then(|input| world.get::<Name>(input))
+//                         .unwrap()
+//                         .as_str(),
+//                     "Node A"
+//                 );
+
+//                 assert_eq!(
+//                     edge_output(&world, edge_a_b)
+//                         .and_then(|output| world.get::<Name>(output))
+//                         .unwrap()
+//                         .as_str(),
+//                     "Node B"
+//                 );
+//             }
+//         }
+
+//         fn quit_after(
+//             mut writer: MessageWriter<AppExit>,
+//             mut counter: Local<usize>
+//         ) {
+//             *counter += 1;
+
+//             if *counter > 30 {
+//                 writer.write(AppExit::Success);
+//             }
+//         }        
+//     }
+
+// }

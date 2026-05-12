@@ -24,8 +24,6 @@ pub use scene::ScenePlugin;
 
 pub mod graph;
 
-pub mod rng;
-
 /// A plugin group for enabling the core plugins
 pub struct CorePlugins;
 

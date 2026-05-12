@@ -13,6 +13,7 @@ pub struct GameInputPlugin;
 impl Plugin for GameInputPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_plugins(InputManagerPlugin::<GameAction>::default())
             .add_systems(Startup, create_keyboard_entity)
             .add_systems(Update, (
                 configure_new_gamepads,

@@ -4,9 +4,5 @@
 
 pub mod core;
 pub mod draft;
-
-/// Combined preludes for main crates
-pub mod prelude {
-    pub use bevy::prelude::*;
-    pub use leafwing_input_manager::prelude::*;
-}
+pub mod test;
+pub mod debug;

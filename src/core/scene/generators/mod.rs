@@ -3,7 +3,7 @@
 //! 
 
 
-use std::{fmt::Display, error::Error, fs::File, io::Write, ops::{Deref, DerefMut}, path::{Path, PathBuf}, sync::{Arc, LazyLock, RwLock}};
+use std::{fmt::Display, error::Error, fs::File, io::Write, path::PathBuf, sync::{Arc, LazyLock, RwLock}};
 
 use bevy::{prelude::*, reflect::{TypeRegistry, TypeRegistryArc}};
 
@@ -38,7 +38,7 @@ pub trait InteractiveScene {
 
     fn world_mut(&mut self) -> &mut World;
 
-    fn apply_world<F: FnOnce(&mut World) -> ()>(&mut self, f: F) -> &mut Self {
+    fn apply_world<F: FnOnce(&mut World)>(&mut self, f: F) -> &mut Self {
         f(self.world_mut());
         self
     }
@@ -56,7 +56,7 @@ pub struct SceneWriter(World);
 impl SceneWriter {
     /// Writes the scene to the given [`Writer`](std::fmt::Writer)
     pub fn write_to<W: Write>(&self, writer: &mut W) -> Result<(), SceneWriterError> {
-        writer.write(&DynamicScene::from_world(self.world())
+        writer.write_all(DynamicScene::from_world(self.world())
             .serialize(&self.world().resource::<AppTypeRegistry>().read())?.as_bytes())?;
 
         Ok(())

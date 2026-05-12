@@ -15,10 +15,8 @@
 use std::env;
 
 use bevy::prelude::*;
-use leafwing_input_manager::prelude::*;
 use sentinel::{
-    core::{CorePlugins, input::GameAction},
-    draft::DraftPlugins
+    core::CorePlugins, debug::DebugPlugins, draft::DraftPlugins
 };
 
 fn main() {
@@ -29,8 +27,8 @@ fn main() {
 
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(InputManagerPlugin::<GameAction>::default())
         .add_plugins(CorePlugins)
         .add_plugins(DraftPlugins)
+        .add_plugins(DebugPlugins)
         .run();
 }
