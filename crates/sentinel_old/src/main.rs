@@ -15,7 +15,7 @@
 use std::env;
 
 use bevy::prelude::*;
-use sentinel::{
+use sentinel_old::{
     core::CorePlugins, debug::DebugPlugins, draft::DraftPlugins
 };
 

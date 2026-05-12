@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "crates/sentinel/Cargo.toml",
+        "crates/sentinel_old/Cargo.toml"
+    ]
+}
