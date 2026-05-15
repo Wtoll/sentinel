@@ -5,3 +5,28 @@ edition = "2024"
 license = "GPL-3.0"
 
 [dependencies]
+bevy = "0.18"
+sentinel_inspector = { path = "../sentinel_inspector", optional = true }
+sentinel_input = { path = "../sentinel_input" }
+directories = "6"
+strum = { version = "0.28", features = ["derive"], optional = true }
+
+[features]
+default = [
+    "dev"
+]
+dev = [
+    "bevy/dynamic_linking",
+    "debug"
+]
+debug = [
+    "bevy/debug",
+    "dep:sentinel_inspector",
+    "dep:strum"
+]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

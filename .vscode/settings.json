@@ -1,5 +1,7 @@
 {
     "rust-analyzer.linkedProjects": [
+        "crates/sentinel_input/Cargo.toml",
+        "crates/sentinel_inspector/Cargo.toml",
         "crates/sentinel/Cargo.toml",
         "crates/sentinel_old/Cargo.toml"
     ]
