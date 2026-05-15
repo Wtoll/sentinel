@@ -6,6 +6,3 @@ pub mod draft;
 
 #[cfg(feature = "debug")]
 pub mod debug;
-
-#[cfg(test)]
-pub mod test;

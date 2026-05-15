@@ -4,9 +4,8 @@ use bevy::{app::PluginGroupBuilder, prelude::*};
 use sentinel::{core::CorePlugins, debug::DebugPlugins};
 
 fn main() {
-    #[cfg(feature = "debug")]
     // SAFETY: The application is not yet multithreaded
-    unsafe {
+    #[cfg(feature = "debug")] unsafe {
         std::env::set_var("RUST_LOG", "info,sentinel=debug");
     }
 
@@ -34,7 +33,10 @@ impl PluginGroup for BevyPlugins {
             .add(bevy::app::TaskPoolPlugin {
                 ..default()
             })
+            .add(bevy::diagnostic::FrameCountPlugin)
             .add(bevy::time::TimePlugin)
+            .add(bevy::transform::TransformPlugin)
+            .add(bevy::input::InputPlugin)
             .add(bevy::window::WindowPlugin {
                 ..default()
             })

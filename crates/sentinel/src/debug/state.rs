@@ -7,7 +7,6 @@ use strum::IntoEnumIterator;
 
 use crate::core::state::{AppState, GameState};
 
-
 pub fn plugin(app: &mut App) {
     AppState::iter()
         .for_each(|state| {

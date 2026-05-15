@@ -133,3 +133,13 @@ Altogether, this means the callstack of a typical update loop looks roughly like
     - On All Runs
         - [`ExtractSchedule`](https://docs.rs/bevy/latest/bevy/render/struct.ExtractSchedule.html)
 - [`Render`](https://docs.rs/bevy/latest/bevy/render/struct.Render.html) runs as the update schedule fo the render [`SubApp`](https://docs.rs/bevy/latest/bevy/app/struct.SubApp.html) (only on feature "bevy_render")
+
+
+## Piping
+
+Functions can be piped together to create systems that redirect the output of one to the input of another. This can be done with any system using the [`IntoSystem::pipe`] method. The first system simply has to have a return type, but the second system must have an [`In`] as its first parameter. Each function in the pipe can also define its own set of system params to expand the input parameters that the system as a whole requires.
+
+The validity of the piped system is evaluated at compile time using Rust's type system, so it's not possible to combine systems in undefined ways.
+
+## Types for Systems
+

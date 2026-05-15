@@ -7,9 +7,13 @@ license = "GPL-3.0"
 [dependencies]
 bevy = "0.18"
 sentinel_inspector = { path = "../sentinel_inspector", optional = true }
+sentinel_graph = { path = "../sentinel_graph"}
 sentinel_input = { path = "../sentinel_input" }
 directories = "6"
 strum = { version = "0.28", features = ["derive"], optional = true }
+
+[dev-dependencies]
+sentinel_test = { path = "../sentinel_test" }
 
 [features]
 default = [

@@ -1,15 +1,11 @@
 [package]
-name = "sentinel_inspector"
+name = "sentinel_test"
 version = "0.1.0"
 edition = "2024"
 license = "MIT or APACHE-2.0"
 
 [dependencies]
 bevy = "0.18"
-bevy_egui = "0.39"
-egui = "0.33"
-ratatui = "0.30"
-soft_ratatui = "0.2"
 
 [dev-dependencies]
 bevy = { version = "0.18", features = ["dynamic_linking", "debug"] }
@@ -19,4 +15,3 @@ opt-level = 1
 
 [profile.dev.package."*"]
 opt-level = 3
-
