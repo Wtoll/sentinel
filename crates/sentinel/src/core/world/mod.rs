@@ -16,13 +16,11 @@ impl Plugin for WorldManagerPlugin {
     }
 }
 
-
-
-
 fn load_world(
     mut commands: Commands
 ) {
     commands.spawn((
+        Name::new("Placeholder Game Entering Task"),
         LifecycleTaskHolder::new(
             AsyncComputeTaskPool::get().spawn(async move {
                 String::from("Task completed")
@@ -35,7 +33,6 @@ fn load_world(
         GameEnteringTask
     ));
 }
-
 
 fn exit_world(
     mut commands: Commands

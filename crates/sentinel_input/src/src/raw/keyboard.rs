@@ -9,14 +9,15 @@ pub struct Keyboard {
     key_codes: ButtonInput<KeyCode>
 }
 
-
-
 pub(crate) fn spawn_virtual_keyboard(
     mut commands: Commands
 ) {
-    commands.spawn(Keyboard {
-        key_codes: Default::default()
-    });
+    commands.spawn((
+        Name::new("Virtual Keyboard"),
+        Keyboard {
+            key_codes: Default::default()
+        }
+    ));
 }
 
 pub(crate) fn update_virtual_keyboards(

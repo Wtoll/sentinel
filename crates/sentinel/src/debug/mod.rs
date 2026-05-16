@@ -9,6 +9,8 @@ use sandbox::SandboxPlugin;
 
 mod state;
 
+mod labels;
+
 /// Plugins for debugging sentinel
 pub struct DebugPlugins;
 
@@ -18,5 +20,6 @@ impl PluginGroup for DebugPlugins {
             .add(InspectorPlugin)
             .add(SandboxPlugin)
             .add(state::plugin)
+            .add(labels::plugin)
     }
 }

@@ -1,6 +1,8 @@
 //! Sentinel core libraries
 //! 
 
+use bevy::{app::{PluginGroup, PluginGroupBuilder}, camera::Viewport, prelude::*};
+
 pub mod util;
 use util::task::TaskPlugin;
 
@@ -20,7 +22,7 @@ use render::camera::CameraControllerPlugin;
 
 pub mod physics;
 
-use bevy::{app::{PluginGroup, PluginGroupBuilder}, camera::Viewport, prelude::*};
+pub mod progression;
 
 use crate::core::{player::PlayerManager, render::camera::CameraController, state::{AppState, GameState}};
 
@@ -37,19 +39,14 @@ impl PluginGroup for CorePlugins {
             .add(WorldManagerPlugin)
             .add(TaskPlugin)
             .add(CameraControllerPlugin)
+            .add(progression::plugin)
     }
 }
-
-
-
 
 fn plugin(app: &mut App) {
     app
         .add_systems(OnEnter(GameState::Running), game_enter);
 }
-
-
-
 
 fn game_enter(
     mut commands: Commands,
@@ -58,7 +55,7 @@ fn game_enter(
     mut materials: ResMut<Assets<StandardMaterial>>
 ) {
     commands.spawn((
-        Name::new("Viewport"),
+        Name::new("Main Camera"),
         Camera3d::default(),
         Camera2d,
         Transform::from_translation(32.0 * Vec3::Z),
@@ -66,7 +63,7 @@ fn game_enter(
     ));
 
     commands.spawn((
-        Name::new("Minimap"),
+        Name::new("Minimap Camera"),
         Camera {
             viewport: Some(Viewport {
                 physical_position: UVec2::new(10, 30),
@@ -81,20 +78,16 @@ fn game_enter(
         Transform::from_translation(Vec3::Y * 16.0).looking_at(Vec3::ZERO, Vec3::NEG_Z),
     ));
 
-
     let player = player_manager
         .spawn_player(&mut commands)
         .insert(Transform::from_xyz(0.0, -4.0, 0.0))
         .id();
 
-    
-
     commands.spawn((
+        Name::new("Ground"),
         DespawnOnExit(AppState::Game),
         Mesh3d(meshes.add(Cuboid::new(10.0, 1.0, 1.0))),
         MeshMaterial3d(materials.add(Color::WHITE)),
         Transform::from_xyz(0.0, -5.0, 0.0)
     ));
-
-
 }
