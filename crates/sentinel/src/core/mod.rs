@@ -1,7 +1,9 @@
 //! Sentinel core libraries
 //! 
 
-use bevy::{app::{PluginGroup, PluginGroupBuilder}, camera::Viewport, prelude::*};
+use std::sync::{Arc, Mutex};
+
+use bevy::{app::{PluginGroup, PluginGroupBuilder}, camera::Viewport, prelude::*, window::{PrimaryWindow, RawHandleWrapperHolder}};
 
 pub mod util;
 use util::task::TaskPlugin;
@@ -24,6 +26,9 @@ pub mod physics;
 
 pub mod progression;
 
+pub mod save;
+use save::SavePlugin;
+
 use crate::core::{player::PlayerManager, render::camera::CameraController, state::{AppState, GameState}};
 
 /// Plugin group for the game's core plugins
@@ -40,12 +45,23 @@ impl PluginGroup for CorePlugins {
             .add(TaskPlugin)
             .add(CameraControllerPlugin)
             .add(progression::plugin)
+            .add(SavePlugin {
+                save_dir: util::dirs::save_directory()
+            })
     }
 }
 
 fn plugin(app: &mut App) {
     app
         .add_systems(OnEnter(GameState::Running), game_enter);
+
+
+    app.world_mut().spawn((
+        Name::new("Primary Window"),
+        PrimaryWindow,
+        Window::default(),
+        RawHandleWrapperHolder(Arc::new(Mutex::new(None)))
+    ));
 }
 
 fn game_enter(

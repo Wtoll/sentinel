@@ -1,6 +1,6 @@
 //! Sentinel
 
-use bevy::{app::PluginGroupBuilder, prelude::*};
+use bevy::{app::PluginGroupBuilder, prelude::*, window::ExitCondition};
 use sentinel::{core::CorePlugins, debug::DebugPlugins};
 
 fn main() {
@@ -38,6 +38,8 @@ impl PluginGroup for BevyPlugins {
             .add(bevy::transform::TransformPlugin)
             .add(bevy::input::InputPlugin)
             .add(bevy::window::WindowPlugin {
+                primary_window: None,
+                exit_condition: ExitCondition::OnPrimaryClosed,
                 ..default()
             })
             .add(bevy::a11y::AccessibilityPlugin);

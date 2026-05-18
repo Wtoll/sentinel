@@ -8,7 +8,6 @@ pub fn plugin(app: &mut App) {
         .add_systems(Last, (
             label_monitors,
             label_pointers,
-            label_primary_window,
             label_observers
         ));
 }
@@ -19,15 +18,6 @@ fn label_observers(
 ) {
     for observer in observers {
         commands.entity(observer).insert(Name::new("Observer"));
-    }
-}
-
-fn label_primary_window(
-    mut commands: Commands,
-    primary_windows: Query<Entity, (Added<PrimaryWindow>, Without<Name>)>
-) {
-    for window in primary_windows {
-        commands.entity(window).insert(Name::new("Primary Window"));
     }
 }
 
@@ -42,12 +32,16 @@ fn label_pointers(
 
 fn label_monitors(
     mut commands: Commands,
-    monitors: Query<Entity, (Added<Monitor>, Without<Name>)>,
+    monitors: Query<(Entity, &Monitor), (Added<Monitor>, Without<Name>)>,
     mut counter: Local<usize>
 ) {
-    for monitor in monitors {
+    for (id, monitor) in monitors {
         *counter += 1;
 
-        commands.entity(monitor).insert(Name::new(format!("Monitor {}", *counter)));
+        commands.entity(id).insert(Name::new(if let Some(name) = &monitor.name {
+            format!("Monitor {}", name.clone())
+        } else {
+            format!("Monitor {}", *counter)
+        }));
     }
 }
